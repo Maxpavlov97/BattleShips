@@ -3,9 +3,9 @@
 xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:paddingBottom="16dp"
-android:paddingLeft="16dp"
-android:paddingRight="16dp"
+android:paddingBottom="4dp"
+android:paddingLeft="0dp"
+android:paddingRight="0dp"
 android:paddingTop="4dp"
 android:orientation="vertical"
 android:background="#0f0">
@@ -16,30 +16,36 @@ android:background="#0f0">
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Left"
+            android:text="Reset"
             android:padding="0dp"
             android:layout_weight="1"
-            android:backgroundTint="#f00"/>
+            android:onClick="resetBoard"
+            android:backgroundTint="#FFFF00"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Middle"
+            android:text="Place Ship"
             android:padding="0dp"
             android:layout_weight="1"
-            android:backgroundTint="#f00"/>
+            android:backgroundTint="#FFFF00"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Right"
             android:padding="0dp"
             android:layout_weight="1"
-            android:backgroundTint="#f00"/>
+            android:backgroundTint="#FFFF00"/>
     </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/boardLayout"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
+        android:padding="0dp"
         android:background="#fff">
 
+
+
     </RelativeLayout>
+
 </LinearLayout>

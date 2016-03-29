@@ -2,10 +2,16 @@ package com.example.android.battleships;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ImageButton;
 
 public class Cell extends ImageButton {
-    int id;
+    private int id;
+    private int imageId;
+    private int y;
+    private int x;
+    private boolean isEmpty = true;
+    private boolean isHit = false;
 
     public Cell(Context context) {
         super(context);
@@ -29,12 +35,35 @@ public class Cell extends ImageButton {
 
     public void setImage(int i)
     {
+        imageId=i;
         setImageResource(i);
-        invalidate();
+        //invalidate();
     }
-    public String toString()
-    {
-        return "cell: "+(id/10)+","+(id%10);
+
+    public void setCoords(int x, int y){
+        this.x = x;
+        this.y = y;
     }
+
+    public boolean isEmpty(){
+        return isEmpty;
+    }
+
+    public boolean isHit(){
+        return isHit;
+    }
+
+    public void hit(){
+        isHit=true;
+    }
+
+    public void build(boolean i){
+        isEmpty = !i;
+    }
+
+    public int getId(){return id;}
+    public int getYCoord(){return y;}
+    public int getXCoord(){return x;}
+    public int getImageId(){return imageId;}
 
 }
