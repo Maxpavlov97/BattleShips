@@ -1,22 +1,13 @@
 package com.example.android.battleships;
 
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.jar.Attributes;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -25,10 +16,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     int screenX;
     int screenY;
     int numCells;
+    int cellSize;
 
     RelativeLayout boardView;
     Board board;
+    Board playerBoard;
+    Board opponentBoard;
+    ai opponent;
 
+    boolean boardShown = true; //true if playerBoard is shown, false if opponents
+
+    boolean yourTurn;
     boolean clickable = true; //debounce for onclick
     boolean buildMode = true; //true if you are in the phase of putting down your ships.
     boolean buildPhase = true; //true if you are putting down the first point for a ship, false if you are selecting the final cell
@@ -40,24 +38,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.game);
+        setContentView(R.layout.ship_setup);
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         screenX = size.x;
         screenY = size.y;
-        numCells = 6;
-        shipLength = Ship.shipsToPlace.length;
-        shipsToPlace = Ship.shipsToPlace[shipLength-1];
+        numCells = 10;
+        cellSize = screenX / (numCells + 1);
+        shipLength = Ships.shipsToPlace.length;
+        shipsToPlace = Ships.shipsToPlace[shipLength-1];
 
-        board = new Board(numCells);
+        playerBoard = new Board(numCells,this);
+        board = playerBoard;
 
-        boardView = (RelativeLayout) findViewById(R.id.boardLayout);
+        //boardView = (RelativeLayout) findViewById(R.id.boardLayout);
+        setUpBoard();
         boardView.setBackgroundColor(Color.rgb(0,162,232));
         System.out.println(R.string.app_name);
-
-        createBoard();
 
 
     }
@@ -85,99 +84,146 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         System.out.println("ship built");
                         board.clearBuilds();
                         shipsToPlace--;
-                        while (shipsToPlace == 0) {
-                            System.out.println("Done placing " + Ship.shipNames[shipLength-1] + "s");
+                        while (shipsToPlace == 0) { // figures out what ship is next to place
+                            System.out.println("Done placing " + Ships.shipNames[shipLength-1] + "s");
                             shipLength--;
                             if (shipLength == 0) {
                                 buildMode = false;
                                 System.out.println("Finished placing Ships, game is ready to begin");
+                                playGame();
                                 return;
                             }
-                            shipsToPlace = Ship.shipsToPlace[shipLength-1];
+                            ((TextView)findViewById(R.id.shipName)).setText(""+Ships.shipNames[shipLength-1]);
+
+                            ((TextView)findViewById(R.id.shipCounter)).setText(""+shipsToPlace);
+                            shipsToPlace = Ships.shipsToPlace[shipLength-1];
                         }
                     }
                     else{
-                        System.out.println("ship not built try again");
+                        clearBuilds(new View(this));
                     }
                 }
 
             }
             //game
         }
+        else{ // firing
+            if(yourTurn && !boardShown && board.getBoard()[x][y].getImageId()==(R.drawable.cloud)){
+                board.shoot(x, y);
+                System.out.println("player shot");
+                yourTurn = false;
+                System.out.println("about to pause");
+                System.out.println("done pausing");
+                //switchBoards();
+                opponent.shoot();
+                System.out.println("ai shot");
+                System.out.println("about to pause");
+                System.out.println("done pausing");
+               // switchBoards();
+                yourTurn = true;
+            }
+        }
+
     }
     //*/
 
 
     public void createBoard()
     {
-        int id = 1;
-        int cellSize = (int)Math.floor(screenX - (0 * 2)) / (numCells + 1);
-        RelativeLayout.LayoutParams params;
-        System.out.println("ScreenSize: "+screenX);
-        System.out.println("CellSize: "+cellSize);
-        for(int i=0; i<=numCells;i++)   //creates alpha grid on top of board
-        {
-            TextView a = new TextView(this);
-            a.setId(id++);
-            if(i!=0){
-                a.setText(""+(i));
-                a.setGravity(Gravity.CENTER);
-            }
-            if(i%2==0) {
-                a.setBackgroundColor(Color.rgb(100,100,200));
-            }
-            else{
-                a.setBackgroundColor(Color.rgb(50,50,150));
-            }
-            params = new RelativeLayout.LayoutParams(cellSize, cellSize);
-            params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            if(i==0) {
-                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            }
-            else{
-                params.addRule(RelativeLayout.RIGHT_OF,id-2);
-            }
-            a.setLayoutParams(params);
-            boardView.addView(a);
-        }
-        for(int y=0; y<numCells; y++){
-            TextView a = new TextView(this);
-            a.setId(id++);
-
-            a.setText(String.valueOf(alphabet[y]));
-            a.setGravity(Gravity.CENTER);
-            if(y%2==0) {
-                a.setBackgroundColor(Color.rgb(50,50,150));
-            }
-            else{
-                a.setBackgroundColor(Color.rgb(100,100,200));
-            }
-            params = new RelativeLayout.LayoutParams(cellSize, cellSize);
-            params.addRule(RelativeLayout.BELOW,id-(numCells+1));
-            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            a.setLayoutParams(params);
-            boardView.addView(a);
-
-            for(int x=0; x<numCells; x++){
-                board.getBoard()[x][y] = new Cell(this, id++);
-                params = new RelativeLayout.LayoutParams(cellSize, cellSize);
-                params.addRule(RelativeLayout.BELOW,id-(numCells+2));
-                params.addRule(RelativeLayout.RIGHT_OF,id-2);
-                board.getBoard()[x][y].setLayoutParams(params);
+        boardView.removeAllViews();
+        board.displayBoard(boardView, cellSize, this);
+        for(int x=0; x<numCells; x++){
+            for(int y=0; y<numCells; y++){
                 board.getBoard()[x][y].setOnClickListener(this);
-                board.getBoard()[x][y].setCoords(x, y);
-                board.getBoard()[x][y].setScaleType(ImageView.ScaleType.CENTER_CROP);
-                boardView.addView(board.getBoard()[x][y]);
             }
         }
+    }
+
+    public void clearBuilds(View view){
+        if(!buildPhase&&buildMode) {
+            board.clearBuilds();
+            buildPhase = true;
+        }
+    }
+
+
+    public void switchBoards(View view){
+            if(boardShown){
+                boardShown = false;
+                board = opponentBoard;
+                ((TextView)findViewById(R.id.switchBoard)).setText("Your Board");
+            }
+            else{
+                boardShown = true;
+                board = playerBoard;
+                ((TextView)findViewById(R.id.switchBoard)).setText("Opponent's Board");
+            }
+            boardView.removeAllViews();
+            createBoard();
+
+    }
+
+    public void switchBoards(){
+        if(boardShown){
+            boardShown = false;
+            board = opponentBoard;
+            ((TextView)findViewById(R.id.switchBoard)).setText("Switch To Your Board");
+        }
+        else{
+            boardShown = true;
+            board = playerBoard;
+            ((TextView)findViewById(R.id.switchBoard)).setText("Switch To Opponent's Board");
+        }
+        boardView.removeAllViews();
+        createBoard();
 
     }
 
     public void resetBoard(View v){
+        boardView.removeAllViews();
+        board.clear();
         createBoard();
         buildMode=true;
         buildPhase=true;
-        shipLength = Ship.shipsToPlace.length;
-        shipsToPlace = Ship.shipsToPlace[shipLength-1];
+        shipLength = Ships.shipsToPlace.length;
+        shipsToPlace = Ships.shipsToPlace[shipLength-1];
+    }
+
+    public void randomPlayerBoard(View view){
+        playerBoard=Board.createPlayerBoard(numCells, this);
+        board = playerBoard;
+        playGame();
+    }
+
+    public void setUpBoard(){
+        setContentView(R.layout.ship_setup);
+        boardView = (RelativeLayout) findViewById(R.id.buildLayout);
+        clickable = true;
+        buildMode = true;
+        buildPhase = true;
+        createBoard();
+    }
+
+    public void playGame(){
+        setContentView(R.layout.game);
+        boardView.removeAllViews();
+        boardView = (RelativeLayout) findViewById(R.id.boardLayout);
+        createBoard();
+        opponentBoard = Board.createAiBoard(numCells,this);
+        opponent = new ai(playerBoard);
+        clickable = false;
+        yourTurn = true;
+        switchBoards();
+    }
+
+    public void pause(int i){
+        boardView.invalidate();
+        try {
+            Thread.sleep(i);
+        }
+        catch (InterruptedException e){
+            System.out.print("Exception thrown");
+        }
+
     }
 }

@@ -1,13 +1,19 @@
 package com.example.android.battleships;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.Gravity;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import java.util.ArrayList;
 
-/**
- * Created by Max on 3/28/2016.
- */
 public class Board {
     Cell[][] board;
+    int[][] points;
+    Ships ships;
     int numCells;
+    Context context;
 
     int pX;     //prefix p means temporary
     int pY;
@@ -18,13 +24,52 @@ public class Board {
     static final int DOWN = 2;
     static final int LEFT = 3;
 
-    public Board(int i) {
+    public Board(int i, Context c) {
         board= new Cell[i][i];
         numCells = i;
+        context = c;
+        points = new int[i][i];
+        ships = new Ships();
+        clear();
     }
 
     public Cell[][] getBoard(){
         return board;
+    }
+
+    public void shoot(int x, int y){
+        //if(board[x][y].getImageId()==R.drawable.cloud) {//if cell is not yet fired at
+            if (ships.getShip(x, y) != null) { // if cell fired at contains ship
+                if(ships.getShip(x,y).shotAt(x,y)) {    //shoots at the cell and returns true if ship is sunk
+                    sinkShip(ships.getShip(x,y).x,ships.getShip(x,y).y,ships.getShip(x,y).length,ships.getShip(x,y).direction);
+                }
+                else{
+                    board[x][y].setImage(R.drawable.hit);
+                }
+            }
+            else{
+                board[x][y].setImage(R.drawable.sea);  //missed
+            }
+        //}
+    }
+    public boolean shot(int x, int y){
+        System.out.println(""+ships.ships[0]);
+        if (ships.getShip(x, y) != null) { // if cell fired at contains ship
+            if(ships.getShip(x,y).shotAt(x,y)) {    //shoots at the cell and returns true if ship is sunk
+                sinkShip(ships.getShip(x,y).x,ships.getShip(x,y).y,ships.getShip(x,y).length,ships.getShip(x,y).direction);
+                System.out.println("ship sunk");
+                return true;
+            }
+            else{
+                board[x][y].setImage(R.drawable.hit);
+                System.out.println("hit");
+            }
+        }
+        else{
+            board[x][y].setImage(R.drawable.miss);  //missed
+            System.out.println("miss");
+        }
+        return false;
     }
 
     public boolean drawAvailableShips(int x, int y, int size){
@@ -68,9 +113,10 @@ public class Board {
         int cX=c.getXCoord();
         int cY=c.getYCoord();
         if(cX==pX&&cY==pY){
-            if(pSize==1 && c.getImageId()==R.drawable.build){
+            if(pSize==1){
                 board[pX][pY].setImage(R.drawable.submarine);
                 board[pX][pY].build(true);
+                ships.addShip(new Ship(pX,pY,pSize,4));
                 return true;
             }
             else {
@@ -80,52 +126,154 @@ public class Board {
         if(c.getImageId()==R.drawable.build){
             ans = true;
             if(cX>pX) { //picked right
-                for (int i = 0; i < pSize; i++) {
-                    if(i==0)
-                        board[pX+i][pY].setImage(R.drawable.ship_end_right);
-                    else if(i==pSize-1)
-                        board[pX+i][pY].setImage(R.drawable.ship_front_right);
-                    else
-                        board[pX+i][pY].setImage(R.drawable.ship_middle_horizontal);
-                    board[pX+i][pY].build(true);
-                }
+                placeShip(pX,pY,pSize,RIGHT);
             }
             if(cX<pX) { //picked left
-                for (int i = 0; i < pSize; i++) {
-                    if(i==0)
-                        board[pX-i][pY].setImage(R.drawable.ship_end_left);
-                    else if(i==pSize-1)
-                        board[pX-i][pY].setImage(R.drawable.ship_front_left);
-                    else
-                        board[pX-i][pY].setImage(R.drawable.ship_middle_horizontal);
-                    board[pX-i][pY].build(true);
-                }
+                placeShip(pX,pY,pSize,LEFT);
             }
             if(cY>pY) { //picked down
-                for (int i = 0; i < pSize; i++) {
-                    if(i==0)
-                        board[pX][pY+i].setImage(R.drawable.ship_end_down);
-                    else if(i==pSize-1)
-                        board[pX][pY+i].setImage(R.drawable.ship_front_down);
-                    else
-                        board[pX][pY+i].setImage(R.drawable.ship_middle_vertical);
-                    board[pX][pY+i].build(true);
-                }
+                placeShip(pX,pY,pSize,DOWN);
             }
             if(cY<pY) { //picked up
-                for (int i = 0; i < pSize; i++) {
-                    if(i==0)
-                        board[pX][pY-i].setImage(R.drawable.ship_end_up);
-                    else if(i==pSize-1)
-                        board[pX][pY-i].setImage(R.drawable.ship_front_up);
-                    else
-                        board[pX][pY-i].setImage(R.drawable.ship_middle_vertical);
-                    board[pX][pY-i].build(true);
-                }
+                placeShip(pX,pY,pSize,UP);
             }
         }
         return ans;
     }
+
+
+
+    public void placeShip(int x, int y, int s, int d){
+        if(s==1){
+            board[x][y].setImage(R.drawable.submarine);
+            ships.addShip(new Ship(x,y,s,4));
+            board[x][y].build(true);
+        }
+        else{
+            if(d==RIGHT) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x+i][y].setImage(R.drawable.ship_end_right);
+                    else if(i==s-1)
+                        board[x+i][y].setImage(R.drawable.ship_front_right);
+                    else
+                        board[x+i][y].setImage(R.drawable.ship_middle_horizontal);
+                    board[x+i][y].build(true);
+                }
+                ships.addShip(new Ship(x, y, s, 1));
+            }
+            if(d==LEFT) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x-i][y].setImage(R.drawable.ship_end_left);
+                    else if(i==s-1)
+                        board[x-i][y].setImage(R.drawable.ship_front_left);
+                    else
+                        board[x-i][y].setImage(R.drawable.ship_middle_horizontal);
+                    board[x-i][y].build(true);
+                }
+                ships.addShip(new Ship(x, y, s, 3));
+            }
+            if(d==UP) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x][y-i].setImage(R.drawable.ship_end_up);
+                    else if(i==s-1)
+                        board[x][y-i].setImage(R.drawable.ship_front_up);
+                    else
+                        board[x][y-i].setImage(R.drawable.ship_middle_vertical);
+                    board[x][y-i].build(true);
+                }
+                ships.addShip(new Ship(x, y, s, 0));
+            }
+            if(d==DOWN) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x][y+i].setImage(R.drawable.ship_end_down);
+                    else if(i==s-1)
+                        board[x][y+i].setImage(R.drawable.ship_front_down);
+                    else
+                        board[x][y+i].setImage(R.drawable.ship_middle_vertical);
+                    board[x][y+i].build(true);
+                }
+                ships.addShip(new Ship(x, y, s, 2));
+            }
+        }
+    }
+
+    public void sinkShip(int x, int y, int s, int d){
+        if(s==1){
+            board[x][y].setImage(R.drawable.submarine_hit);
+            board[x][y].build(true);
+        }
+        else{
+            if(d==RIGHT) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x+i][y].setImage(R.drawable.ship_end_right_hit);
+                    else if(i==s-1)
+                        board[x+i][y].setImage(R.drawable.ship_front_right_hit);
+                    else
+                        board[x+i][y].setImage(R.drawable.ship_middle_horizontal_hit);
+                    board[x+i][y].build(true);
+                }
+            }
+            if(d==LEFT) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x-i][y].setImage(R.drawable.ship_end_left_hit);
+                    else if(i==s-1)
+                        board[x-i][y].setImage(R.drawable.ship_front_left_hit);
+                    else
+                        board[x-i][y].setImage(R.drawable.ship_middle_horizontal_hit);
+                    board[x-i][y].build(true);
+                }
+            }
+            if(d==UP) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x][y-i].setImage(R.drawable.ship_end_up_hit);
+                    else if(i==s-1)
+                        board[x][y-i].setImage(R.drawable.ship_front_up_hit);
+                    else
+                        board[x][y-i].setImage(R.drawable.ship_middle_vertical_hit);
+                    board[x][y-i].build(true);
+                }
+            }
+            if(d==DOWN) {
+                for (int i = 0; i < s; i++) {
+                    if(i==0)
+                        board[x][y+i].setImage(R.drawable.ship_end_down_hit);
+                    else if(i==s-1)
+                        board[x][y+i].setImage(R.drawable.ship_front_down_hit);
+                    else
+                        board[x][y+i].setImage(R.drawable.ship_middle_vertical_hit);
+                    board[x][y+i].build(true);
+                }
+            }
+        }
+    }
+
+    public void placeEnemyShip(int x, int y, int s, int d){
+
+        ships.addShip(new Ship(x, y, s, d));
+
+        for (int i = 0; i < s; i++) {
+            if(d==RIGHT) {
+                board[x + i][y].build(true);
+            }
+            if(d==LEFT) {
+                board[x-i][y].build(true);
+            }
+            if(d==UP) {
+                board[x][y-i].build(true);
+            }
+            if(d==DOWN) {
+                board[x][y+i].build(true);
+            }
+        }
+    }
+
 
     public void clearBuilds(){
         for(int x=0; x<numCells; x++){
@@ -213,7 +361,227 @@ public class Board {
         return checkForSpace(x,y,s,d)&&checkForObstruction(x,y,s,d);
     }
 
+    public void displayBoard(RelativeLayout r, int cellSize, Context c){
+        int id = 1;
+        r.removeAllViews();
 
+        RelativeLayout.LayoutParams params;
+        System.out.println("CellSize: "+cellSize);
+        for(int i=0; i<=numCells;i++)   //creates alpha grid on top of board
+        {
+            TextView a = new TextView(c);
+            a.setId(id++);
+            if(i!=0){
+                a.setText(""+(i));
+                a.setGravity(Gravity.CENTER);
+            }
+            if(i%2==0) {
+                a.setBackgroundColor(Color.rgb(100, 100, 200));
+            }
+            else{
+                a.setBackgroundColor(Color.rgb(50,50,150));
+            }
+            params = new RelativeLayout.LayoutParams(cellSize, cellSize);
+            params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            if(i==0) {
+                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            }
+            else{
+                params.addRule(RelativeLayout.RIGHT_OF,id-2);
+            }
+            a.setLayoutParams(params);
+            r.addView(a);
+        }
+        for(int y=0; y<numCells; y++){
+            TextView a = new TextView(c);
+            a.setId(id++);
+
+            a.setText(String.valueOf(MainActivity.alphabet[y]));
+            a.setGravity(Gravity.CENTER);
+            if(y%2==0) {
+                a.setBackgroundColor(Color.rgb(50,50,150));
+            }
+            else{
+                a.setBackgroundColor(Color.rgb(100,100,200));
+            }
+            params = new RelativeLayout.LayoutParams(cellSize, cellSize);
+            params.addRule(RelativeLayout.BELOW,id-(numCells+1));
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            a.setLayoutParams(params);
+            r.addView(a);
+
+            for(int x=0; x<numCells; x++){
+                board[x][y].setId(id++);
+                params = new RelativeLayout.LayoutParams(cellSize, cellSize);
+                params.addRule(RelativeLayout.BELOW,id-(numCells+2));
+                params.addRule(RelativeLayout.RIGHT_OF, id - 2);
+                board[x][y].setLayoutParams(params);
+                board[x][y].setCoords(x, y);
+                board[x][y].setScaleType(ImageView.ScaleType.CENTER_CROP);
+                r.addView(board[x][y]);
+            }
+        }
+    }
+
+    public void clear(){
+        for(int x=0; x<numCells; x++){
+            for(int y=0; y<numCells; y++){
+                board[x][y]=new Cell(context);
+                board[x][y].setCoords(x, y);
+            }
+        }
+        ships.clear();
+    }
+
+    static public Board createAiBoard(int n, Context c){
+        System.out.println("Starting ai board build");
+        Board ans = new Board(n, c);
+
+        int[] ships = Ships.shipsToPlace;
+        for (int i = ships.length - 1; i >= 0; i--) {
+            System.out.println(Ships.shipNames[i]);
+            for (int j = 0; j < ships[i]; j++) {
+                System.out.println(j+1+" out of "+ ships[i]);
+                int attempts = 100;
+                outerLoop:
+                while (true) {  //keeps trying until it can place a ship
+                    attempts--;
+                    //System.out.println("while loop attempts left:"+attempts);
+                    int x = (int) (Math.random() * n);
+                    int y = (int) (Math.random() * n);
+                    int d = (int) (Math.random() * 4);
+                    if (ans.getBoard()[x][y].isEmpty()) {
+                        if (d == UP && ans.check(x, y, i + 1, UP)) {
+                            ans.placeEnemyShip(x, y, i + 1, UP);
+                            break;
+                        }
+                        if (d == RIGHT && ans.check(x, y, i + 1, RIGHT)) {
+                            ans.placeEnemyShip(x, y, i + 1, RIGHT);
+                            break;
+                        }
+                        if (d == DOWN && ans.check(x, y, i + 1, DOWN)) {
+                            ans.placeEnemyShip(x, y, i + 1, DOWN);
+                            break;
+                        }
+                        if (d == LEFT && ans.check(x, y, i + 1, LEFT)) {
+                            ans.placeEnemyShip(x, y, i + 1, LEFT);
+                            break;
+                        }
+                    }
+                    if (attempts == 0) {    //was unable to find a place to put a ship randomly
+                        System.out.println("Unable to place a ship for ai randomly, going into search mode");
+                        for(x=0; x<n; x++){
+                            for(y=0; y<n; y++){
+                                if (ans.getBoard()[x][y].isEmpty()) {
+                                    if (ans.check(x, y, i + 1, UP)) {
+                                        ans.placeEnemyShip(x, y, i + 1, UP);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                    if (ans.check(x, y, i + 1, RIGHT)) {
+                                        ans.placeEnemyShip(x, y, i + 1, RIGHT);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                    if (ans.check(x, y, i + 1, DOWN)) {
+                                        ans.placeEnemyShip(x, y, i + 1, DOWN);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                    if (ans.check(x, y, i + 1, LEFT)) {
+                                        ans.placeEnemyShip(x, y, i + 1, LEFT);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                }
+                            }
+                        }
+                        System.out.println("Search mode failed, restarting method");
+                        return createAiBoard(n,c);
+                    }
+                }
+            }
+
+        }
+        return ans;
+    }
+
+    static public Board createPlayerBoard(int n, Context c){
+        System.out.println("Starting player board build");
+        Board ans = new Board(n, c);
+
+        int[] ships = Ships.shipsToPlace;
+        for (int i = ships.length - 1; i >= 0; i--) {
+            System.out.println(Ships.shipNames[i]);
+            for (int j = 0; j < ships[i]; j++) {
+                System.out.println(j+1+" out of "+ ships[i]);
+                int attempts = 100;
+                outerLoop:
+                while (true) {  //keeps trying until it can place a ship
+                    attempts--;
+                    //System.out.println("while loop attempts left:"+attempts);
+                    int x = (int) (Math.random() * n);
+                    int y = (int) (Math.random() * n);
+                    int d = (int) (Math.random() * 4);
+                    if (ans.getBoard()[x][y].isEmpty()) {
+                        if (d == UP && ans.check(x, y, i + 1, UP)) {
+                            ans.placeShip(x, y, i + 1, UP);
+                            break;
+                        }
+                        if (d == RIGHT && ans.check(x, y, i + 1, RIGHT)) {
+                            ans.placeShip(x, y, i + 1, RIGHT);
+                            break;
+                        }
+                        if (d == DOWN && ans.check(x, y, i + 1, DOWN)) {
+                            ans.placeShip(x, y, i + 1, DOWN);
+                            break;
+                        }
+                        if (d == LEFT && ans.check(x, y, i + 1, LEFT)) {
+                            ans.placeShip(x, y, i + 1, LEFT);
+                            break;
+                        }
+                    }
+                    if (attempts == 0) {    //was unable to find a place to put a ship randomly
+                        System.out.println("Unable to place a ship for player randomly, going into search mode");
+                        for(x=0; x<n; x++){
+                            for(y=0; y<n; y++){
+                                if (ans.getBoard()[x][y].isEmpty()) {
+                                    if (ans.check(x, y, i + 1, UP)) {
+                                        ans.placeShip(x, y, i + 1, UP);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                    if (ans.check(x, y, i + 1, RIGHT)) {
+                                        ans.placeShip(x, y, i + 1, RIGHT);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                    if (ans.check(x, y, i + 1, DOWN)) {
+                                        ans.placeShip(x, y, i + 1, DOWN);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                    if (ans.check(x, y, i + 1, LEFT)) {
+                                        ans.placeShip(x, y, i + 1, LEFT);
+                                        System.out.println("Search mode succeeded");
+                                        break outerLoop;
+                                    }
+                                }
+                            }
+                        }
+                        System.out.println("Search mode failed, restarting method");
+                        return createPlayerBoard(n,c);
+                    }
+                }
+            }
+
+        }
+        return ans;
+    }
+
+    public int getNumCells(){
+        return numCells;
+    }
 }
 
 

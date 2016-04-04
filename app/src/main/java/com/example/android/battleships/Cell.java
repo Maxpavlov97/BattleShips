@@ -23,14 +23,12 @@ public class Cell extends ImageButton {
         setImage(R.drawable.cloud);
         setPadding(0, 0, 0, 0);
         setId(i);
-        id=i;
     }
     public Cell(Context context, AttributeSet attrs, int i) {
         super(context, attrs);
         setImage(R.drawable.cloud);
         setPadding(0, 0, 0, 0);
         setId(i);
-        id=i;
     }
 
     public void setImage(int i)
@@ -38,6 +36,11 @@ public class Cell extends ImageButton {
         imageId=i;
         setImageResource(i);
         //invalidate();
+    }
+
+    public void setId(int i){
+        super.setId(i);
+        id = i;
     }
 
     public void setCoords(int x, int y){
