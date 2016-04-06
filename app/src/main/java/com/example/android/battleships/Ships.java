@@ -4,8 +4,9 @@ package com.example.android.battleships;
  * Created by Max on 3/29/2016.
  */
 public class Ships {
-    static final public int[] shipsToPlace = {3,2,2,1};
+    static public int[] shipsToPlace = {3,2,2,1};
     static public String[] shipNames = {"Submarine","Cruiser","Battleship","Aircraft Carrier"};
+
     Ship[] ships;
     int i=0;
 
@@ -15,7 +16,7 @@ public class Ships {
 
     public void addShip(Ship a){
         ships[i++]=a;
-        System.out.println(a);
+        //System.out.println(a);
     }
 
     public Ship getShip(int x, int y){

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="How To Play"
+        android:gravity="center"
+        android:textSize="64sp"
+        android:background="@color/blue"
+        android:textColor="@color/white"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="384sp"
+            android:layout_height="48sp"
+            android:src="@drawable/sign_empty_half"/>
+
+
+        <Button
+            android:layout_width="368sp"
+            android:layout_height="92sp"
+            android:background="@drawable/sign_right"
+            android:text="Placing ships"
+            android:gravity="center"
+            android:textSize="36sp"/>
+
+        <Button
+            android:layout_width="368sp"
+            android:layout_height="92sp"
+            android:background="@drawable/sign_right"
+            android:text="Game Play"
+            android:gravity="center"
+            android:textSize="36sp"/>
+        <Button
+            android:layout_width="368sp"
+            android:layout_height="92sp"
+            android:background="@drawable/sign_right"
+            android:text="Trivia"
+            android:gravity="center"
+            android:textSize="36sp"/>
+
+        <Button
+            android:layout_width="368sp"
+            android:layout_height="92sp"
+            android:background="@drawable/sign_left"
+            android:text="Back"
+            android:onClick="mainMenu"
+            android:gravity="center"
+            android:textSize="36sp"/>
+        <TextView
+            android:layout_width="384sp"
+            android:layout_height="96sp"
+            android:background="@drawable/sign_empty"/>
+
+
+
+    </LinearLayout>
+</LinearLayout>

@@ -12,7 +12,9 @@ public class Board {
     Cell[][] board;
     int[][] points;
     Ships ships;
+    int[] shipsRemaining;
     int numCells;
+    boolean defeated;
     Context context;
 
     int pX;     //prefix p means temporary
@@ -24,12 +26,29 @@ public class Board {
     static final int DOWN = 2;
     static final int LEFT = 3;
 
+    private int shots;
+    private int misses;
+    private int hits;
+    private int shipsSunk;
+
     public Board(int i, Context c) {
         board= new Cell[i][i];
         numCells = i;
         context = c;
         points = new int[i][i];
         ships = new Ships();
+        defeated = false;
+
+        shots = 0;
+        misses = 0;
+        hits = 0;
+        shipsSunk = 0;
+
+        shipsRemaining = new int[Ships.shipsToPlace.length];
+        for(int q=0; q<Ships.shipsToPlace.length; q++){
+            shipsRemaining[q]=Ships.shipsToPlace[q];
+        }
+
         clear();
     }
 
@@ -38,38 +57,49 @@ public class Board {
     }
 
     public void shoot(int x, int y){
+        shots++;
         //if(board[x][y].getImageId()==R.drawable.cloud) {//if cell is not yet fired at
             if (ships.getShip(x, y) != null) { // if cell fired at contains ship
                 if(ships.getShip(x,y).shotAt(x,y)) {    //shoots at the cell and returns true if ship is sunk
                     sinkShip(ships.getShip(x,y).x,ships.getShip(x,y).y,ships.getShip(x,y).length,ships.getShip(x,y).direction);
+                    hits++;
+                    shipsSunk++;
                 }
                 else{
                     board[x][y].setImage(R.drawable.hit);
+                    hits++;
                 }
             }
             else{
                 board[x][y].setImage(R.drawable.sea);  //missed
+                misses++;
             }
         //}
     }
-    public boolean shot(int x, int y){
-        System.out.println(""+ships.ships[0]);
+    public int shot(int x, int y){
+        shots++;
         if (ships.getShip(x, y) != null) { // if cell fired at contains ship
             if(ships.getShip(x,y).shotAt(x,y)) {    //shoots at the cell and returns true if ship is sunk
                 sinkShip(ships.getShip(x,y).x,ships.getShip(x,y).y,ships.getShip(x,y).length,ships.getShip(x,y).direction);
+                hits++;
+                shipsSunk++;
                 System.out.println("ship sunk");
-                return true;
+                return 2;
             }
             else{
                 board[x][y].setImage(R.drawable.hit);
+                hits++;
                 System.out.println("hit");
+                return 1;
             }
         }
         else{
             board[x][y].setImage(R.drawable.miss);  //missed
+            misses++;
             System.out.println("miss");
+            return 0;
         }
-        return false;
+
     }
 
     public boolean drawAvailableShips(int x, int y, int size){
@@ -202,6 +232,9 @@ public class Board {
     }
 
     public void sinkShip(int x, int y, int s, int d){
+        shipsRemaining[s-1]--;
+        checkForGG();
+        //System.out.println(shipsRemaining[s-1]+" "+Ships.shipNames[s-1]+"s remaining");
         if(s==1){
             board[x][y].setImage(R.drawable.submarine_hit);
             board[x][y].build(true);
@@ -286,6 +319,19 @@ public class Board {
         }
     }
 
+    public void checkForGG(){
+        boolean alive = false;
+        for(int i=0; i<shipsRemaining.length; i++){
+            if(shipsRemaining[i]>0){
+                alive = true;
+            }
+        }
+        if(!alive){
+            System.out.println("Defeated");
+            defeated = true;
+        }
+    }
+
     public boolean checkForSpace(int x, int y, int size, int direction){
         size--;
         if(direction == UP && (y-size>=0)){
@@ -366,7 +412,7 @@ public class Board {
         r.removeAllViews();
 
         RelativeLayout.LayoutParams params;
-        System.out.println("CellSize: "+cellSize);
+        //System.out.println("CellSize: "+cellSize);
         for(int i=0; i<=numCells;i++)   //creates alpha grid on top of board
         {
             TextView a = new TextView(c);
@@ -581,6 +627,10 @@ public class Board {
 
     public int getNumCells(){
         return numCells;
+    }
+    public int[] getStats(){
+        int[] ans = {shots, hits, misses, shipsSunk};
+        return ans;
     }
 }
 

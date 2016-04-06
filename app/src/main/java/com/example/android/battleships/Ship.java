@@ -83,15 +83,15 @@ public class Ship {
 
     public String toString(){
         if(direction==0)
-            return "X: "+x+" Y: "+y+" Length: "+length+" Up";
+            return ""+MainActivity.alphabet[y] +", "+(y+1)+" Length: "+length+" Up";
         if(direction==1)
-            return "X: "+x+" Y: "+y+" Length: "+length+" Right";
+            return ""+MainActivity.alphabet[y] +", "+(y+1)+" Length: "+length+" Right";
         if(direction==2)
-            return "X: "+x+" Y: "+y+" Length: "+length+" Down";
+            return ""+MainActivity.alphabet[y] +", "+(y+1)+" Length: "+length+" Down";
         if(direction==3)
-            return "X: "+x+" Y: "+y+" Length: "+length+" Left";
+            return ""+MainActivity.alphabet[y] +", "+(y+1)+" Length: "+length+" Left";
         else
-            return "X: "+x+" Y: "+y+" Length: "+length;
+            return ""+MainActivity.alphabet[y] +", "+(y+1)+" Length: "+length;
     }
 
 

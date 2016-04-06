@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">BattleShips</string>
+    <string name="player_name">Max</string>
+    <string name="opponent_name">Computer</string>
 </resources>

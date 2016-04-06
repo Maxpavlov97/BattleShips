@@ -8,6 +8,7 @@ public class ai {
     final int HIT = 1;
     final int EMPTY = 2; //aka no chance of a hit here
     final int POTENTIAL = 3;
+    final int SUNK = 4;
 
     final int UP = 0;
     final int RIGHT = 1;
@@ -18,12 +19,7 @@ public class ai {
     int[][] map;
     int numCells;
 
-    boolean foundShip = false;
-    boolean multipleHits = false;
-    boolean knowDirection = false;
-    int direction;
-    boolean knowOrientation;
-    boolean vertical;
+    int hits=0;
     boolean up;
     boolean down;
     boolean left;
@@ -35,16 +31,16 @@ public class ai {
         numCells = b.getNumCells();
         map = new int[numCells][numCells];
         board = b;
+
     }
 
     public void shoot(){
         //System.out.println("AI Shooting");
-        if(!foundShip){
-            //System.out.println("!foundShip");
+        if(hits==0){
+            //System.out.println("Shooting randomly");
             while(true) {
                 int x = (int) (Math.random() * numCells);
                 int y = (int) (Math.random() * numCells);
-                System.out.println(x+", "+y);
                 if (canShoot(x, y)) {
                     map[x][y] = POTENTIAL;
                     break;
@@ -52,18 +48,35 @@ public class ai {
             }
         }
         else{
-            //System.out.println("foundShip");
+            //System.out.println("Trying to sink ship");
             //find tile to shoot at that connects to the found ship
-            for(int i=0; i<numCells; i++) {
-                for (int j = 0; j < numCells; j++) {
+            int i=0;
+            int j=0;
+            outerLoop: //finds the hit ship to work with
+            for(i=0; i<numCells; i++) {
+                for (j = 0; j < numCells; j++) {
                     if(map[i][j]==HIT){
-                        if(!knowOrientation){
-                            getDirections(i, j);
-                        }
-                        if(knowDirection){
-                            findNextPoint(i,j,direction);
-                        }
+                        break outerLoop;
                     }
+                }
+            }
+            if(hits==1){
+                getInitialDirections(i, j);
+            }
+            else{
+                getDirection(i,j);
+                System.out.println("Up="+up+", right="+right+", down="+down+", left="+left);
+                if(up) {
+                    findNextPoint(i, j, UP);
+                }
+                if(right) {
+                    findNextPoint(i, j, RIGHT);
+                }
+                if(down) {
+                    findNextPoint(i, j, DOWN);
+                }
+                if(left) {
+                    findNextPoint(i, j, LEFT);
                 }
             }
         }
@@ -72,24 +85,39 @@ public class ai {
     }
 
     private void pickPotential(){
-       // System.out.println("picking potential");
+        System.out.println("");
+        System.out.println("Potentials");
         int potentials = 0;
         for(int i=0; i<numCells; i++){
             for(int j=0; j<numCells; j++){
                int a = map[i][j];
                 if(a==POTENTIAL){
                     potentials++;
+                    System.out.println(MainActivity.alphabet[j]+", "+(i+1));
                 }
             }
         }
-        System.out.println(potentials+" potentials");
+        //System.out.println(potentials+" potentials");
         int chosen = (int)(Math.random()*potentials);
-        System.out.println("chose "+ chosen);
         for(int i=0; i<numCells; i++){
             for(int j=0; j<numCells; j++){
                 if(map[i][j]==POTENTIAL&&chosen--==0){
-                    board.shot(i,j);
                     System.out.println("picked "+MainActivity.alphabet[j]+", "+(i+1));
+                    int ans = board.shot(i,j);
+                    if(ans == 0){
+                        map[i][j]=EMPTY;
+                    }
+                    if(ans == 1){
+                        map[i][j]=HIT;
+                        hits++;
+                    }
+                    if(ans == 2){
+                        map[i][j]=HIT;
+                        hits++;
+
+                        hits = 0;
+                        sunk();
+                    }
                 }
             }
         }
@@ -110,7 +138,7 @@ public class ai {
     public void findShot(){
 
     }
-    
+
     public boolean canShoot(int i, int j){
         if(i>=0&&i<numCells&&j>=0&&j<numCells&&map[i][j]==UNKNOWN)
             return true;
@@ -119,7 +147,7 @@ public class ai {
 
     public boolean findNextPoint(int i, int j, int d){
         if(d==UP){
-            while(j-->0){
+            while(j-->1){
                 if(map[i][j]==UNKNOWN){
                     map[i][j]=POTENTIAL;
                     return true;
@@ -132,7 +160,7 @@ public class ai {
             }
         }
         if(d==DOWN){
-            while(j++<numCells){
+            while(j++<numCells-1){
                 if(map[i][j]==UNKNOWN){
                     map[i][j]=POTENTIAL;
                     return true;
@@ -158,7 +186,7 @@ public class ai {
             }
         }
         if(d==RIGHT){
-            while(i++<numCells){
+            while(i++<numCells-1){
                 if(map[i][j]==UNKNOWN){
                     map[i][j]=POTENTIAL;
                     return true;
@@ -173,115 +201,75 @@ public class ai {
         return false;
 
     }
+    
+    public void getDirection(int x, int y){
+        if(checkHit(x,y-1)||checkHit(x,y+1)){
+            left = false;
+            right = false;
+        }
+        if(checkHit(x-1,y)||checkHit(x+1,y)){
+            up = false;
+            down = false;
+        }
+    }
 
-    public boolean checkDirection(int i, int j, int d){
-        if(i>=0&&i<numCells&&j>=0&&j<numCells){
-            if(map[i][j]==1){
-                if(d==UP){
-                    knowOrientation = true;
-                    vertical = true;
-                    left=false;
-                    right = false;
-                }
-                if(d==DOWN){
-                    knowOrientation = true;
-                    vertical = true;
-                    left=false;
-                    right = false;
-                }
-                if(d==RIGHT){
-                    knowOrientation = true;
-                    vertical = false;
-                    up=false;
-                    down = false;
-                }
-                if(d==LEFT){
-                    knowOrientation = true;
-                    vertical = false;
-                    up=false;
-                    down = false;
-                }
-                return true;
-            }
-            else if(map[i][j]==0){
-                if(d==UP){
-                    up=true;
-                    if(!multipleHits){
-                        findNextPoint(i,j,d);
-                    }
-                }
-                if(d==DOWN){
-                    down = true;
-                    if(!multipleHits){
-                        findNextPoint(i,j,d);
-                    }
-                }
-                if(d==RIGHT){
-                    right = true;
-                    if(!multipleHits){
-                        findNextPoint(i,j,d);
-                    }
-                }
-                if(d==LEFT){
-                    left = true;
-                    if(!multipleHits){
-                        findNextPoint(i,j,d);
-                    }
-                }
+    public void getInitialDirections(int x, int y){
+        up = checkCell(x,y-1);
+        right = checkCell(x+1,y);
+        down = checkCell(x,y+1);
+        left = checkCell(x-1,y);
+        if(up){
+            map[x][y-1]=POTENTIAL;
+        }
+        if(right){
+            map[x+1][y]=POTENTIAL;
+        }
+        if(down){
+            map[x][y+1]=POTENTIAL;
+        }
+        if(left){
+            map[x-1][y]=POTENTIAL;
+        }
+    }
+
+    public boolean checkCell(int x, int y){
+        if(x>=0&&x<numCells&&y>=0&&y<numCells){
+            if(map[x][y]==UNKNOWN){
                 return true;
             }
         }
         return false;
-
     }
 
-    public void getDirections(int i, int j){
-        knowDirection=false;
-        knowOrientation=false;
-
-        checkDirection(i - 1, j, LEFT);
-        checkDirection(i + 1, j, RIGHT);
-        checkDirection(i, j - 1, UP);
-        checkDirection(i,j+1, DOWN);
-        
-        if(knowOrientation){
-            if(vertical){
-                if((up&&!down)||(!up&&down)){
-                    knowDirection=true;
-                    if(up){
-                        direction=UP;
-                    }
-                    else{
-                        direction=DOWN;
-                    }
-                }
-            }
-            else{
-                if((left&&!right)||(!left&&right)){
-                    knowDirection=true;
-                    if(left){
-                        direction=LEFT;
-                    }
-                    else{
-                        direction=RIGHT;
-                    }
-                }
+    public boolean checkHit(int x, int y){
+        if(x>=0&&x<numCells&&y>=0&&y<numCells){
+            if(map[x][y]==HIT){
+                return true;
             }
         }
+        return false;
     }
 
-/*
-    public boolean thereAreNoHits(){
+    public void sunk(){
+        System.out.println("Ship is sunk, the following points are marked EMPTY:");
         for(int i=0; i<numCells; i++){
             for(int j=0; j<numCells; j++){
                 if(map[i][j]==HIT){
-                    return false;
+                    map[i][j]=SUNK;
+                    markEmptyPoints(i-1,j);
+                    markEmptyPoints(i+1,j);
+                    markEmptyPoints(i,j-1);
+                    markEmptyPoints(i,j+1);
                 }
             }
         }
-        return true;
     }
-*/
 
-
+    public void markEmptyPoints(int x, int y){
+        //System.out.println(MainActivity.alphabet[y]+", "+(x+1)+" is "+map[x][y]);
+        if(x>=0&&x<numCells&&y>=0&&y<numCells&&(map[x][y]==UNKNOWN||map[x][y]==POTENTIAL)){
+            map[x][y]=EMPTY;
+            System.out.println(MainActivity.alphabet[y]+", "+(x+1));
+        }
+    }
 }
