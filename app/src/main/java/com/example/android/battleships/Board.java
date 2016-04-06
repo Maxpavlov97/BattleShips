@@ -135,6 +135,9 @@ public class Board {
             }
             ans = true;
         }
+        if(ans){
+            board[x][y].setImage(R.drawable.build2);
+        }
         return ans;
     }
 
@@ -311,7 +314,7 @@ public class Board {
     public void clearBuilds(){
         for(int x=0; x<numCells; x++){
             for(int y=0; y<numCells; y++){
-                if(board[x][y].getImageId()==R.drawable.build){
+                if(board[x][y].getImageId()==R.drawable.build||board[x][y].getImageId()==R.drawable.build2){
                     board[x][y].setImage(R.drawable.cloud);
                     //board[x][y].build(false);
                 }

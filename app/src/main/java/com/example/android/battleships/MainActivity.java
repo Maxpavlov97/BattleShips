@@ -76,9 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         playGame();
                         return;
                     }
-                    ((TextView)findViewById(R.id.shipName)).setText(""+Ships.shipNames[shipLength-1]);
 
-                    ((TextView)findViewById(R.id.shipCounter)).setText(""+shipsLeftToPlace);
                     shipsLeftToPlace = Ships.shipsToPlace[shipLength-1];
                 }
                 if (buildPhase) {
@@ -104,11 +102,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 playGame();
                                 return;
                             }
-                            ((TextView)findViewById(R.id.shipName)).setText(""+Ships.shipNames[shipLength-1]);
-
-                            ((TextView)findViewById(R.id.shipCounter)).setText(""+shipsLeftToPlace);
                             shipsLeftToPlace = Ships.shipsToPlace[shipLength-1];
                         }
+
+                        ((TextView)findViewById(R.id.shipName)).setText("" + Ships.shipNames[shipLength - 1]);
+
+                        ((TextView)findViewById(R.id.shipCounter)).setText(""+shipsLeftToPlace);
 
                     }
                     else{
@@ -130,16 +129,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 //System.out.println("about to pause");
                 //System.out.println("done pausing");
+                pause(500);
                 switchBoards();
+                pause(500);
                 opponent.shoot();
+                pause(500);
                 //System.out.println("ai shot");
                 if(playerBoard.defeated){
                     runVictoryScreen(false);
                     return;
                 }
+                pause(500);
                 //System.out.println("about to pause");
                 //System.out.println("done pausing");
                 switchBoards();
+                pause(500);
                 yourTurn = true;
             }
         }
@@ -225,6 +229,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         clickable = true;
         buildMode = true;
         buildPhase = true;
+        for(int i=Ships.shipsToPlace.length-1; i>=0; i--){
+            if(Ships.shipsToPlace[i]!=0){
+                ((TextView)findViewById(R.id.shipName)).setText(""+Ships.shipNames[i]);
+                ((TextView)findViewById(R.id.shipCounter)).setText(""+Ships.shipsToPlace[i]);
+                break;
+            }
+        }
+
         createBoard();
     }
 
