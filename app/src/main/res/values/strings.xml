@@ -2,4 +2,6 @@
     <string name="app_name">BattleShips</string>
     <string name="player_name">Max</string>
     <string name="opponent_name">Computer</string>
+    <string name="switch_opponent">Switch To Opponent\'s Board</string>
+    <string name="switch_your">Switch To Your Board</string>
 </resources>

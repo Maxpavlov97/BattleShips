@@ -2,11 +2,14 @@
 <ScrollView
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:background="@color/blue"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
-        android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/blue">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,6 +28,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="-"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/boardSize_minus"
@@ -41,6 +45,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="+"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/boardSize_plus"
@@ -69,6 +74,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="-"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/aircraft_minus"
@@ -86,6 +92,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="+"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/aircraft_plus"
@@ -114,6 +121,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="-"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/battleship_minus"
@@ -130,6 +138,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="+"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/battleship_plus"
@@ -157,6 +166,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="-"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/cruiser_minus"
@@ -173,6 +183,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="+"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/cruiser_plus"
@@ -200,6 +211,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="-"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/subs_minus"
@@ -216,6 +228,7 @@
                 android:layout_width="64sp"
                 android:layout_height="64sp"
                 android:text="+"
+                android:background="@color/yellow"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/subs_plus"
@@ -231,6 +244,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="16sp"
             android:text="Back"
+            android:background="@color/red"
             android:textSize="36sp"
             android:onClick="mainMenu"/>
 

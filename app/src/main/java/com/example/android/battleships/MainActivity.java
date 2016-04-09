@@ -2,19 +2,28 @@ package com.example.android.battleships;
 
 import android.graphics.Color;
 import android.graphics.Point;
+import android.media.Image;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private Handler handy;
 
     static char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+    int[] menuGraphics = {R.drawable.sea, R.drawable.miss, R.drawable.cloud};
     int screenX;
     int screenY;
     int numCells;
@@ -28,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     boolean boardShown = true; //true if playerBoard is shown, false if opponents
 
+    boolean ongoingGame = false;
     boolean yourTurn;
     boolean gameOver = false;
     boolean clickable = true; //debounce for onclick
@@ -43,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ship_setup);
+
+        handy = new Handler();
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -77,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         return;
                     }
 
-                    shipsLeftToPlace = Ships.shipsToPlace[shipLength-1];
+                    shipsLeftToPlace = Ships.shipsToPlace[shipLength - 1];
                 }
                 if (buildPhase) {
                     if (board.drawAvailableShips(x, y, shipLength)) {  //returns true if it was able to draw ships
@@ -86,8 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     } else {
                         System.out.println("cant draw potential ships");
                     }
-                }
-                else {
+                } else {
                     if (board.pickAvailableShip(a)) {
                         buildPhase = true;
                         System.out.println("ship built");
@@ -102,52 +113,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 playGame();
                                 return;
                             }
-                            shipsLeftToPlace = Ships.shipsToPlace[shipLength-1];
+                            shipsLeftToPlace = Ships.shipsToPlace[shipLength - 1];
                         }
 
-                        ((TextView)findViewById(R.id.shipName)).setText("" + Ships.shipNames[shipLength - 1]);
+                        ((TextView) findViewById(R.id.shipName)).setText("" + Ships.shipNames[shipLength - 1]);
 
-                        ((TextView)findViewById(R.id.shipCounter)).setText(""+shipsLeftToPlace);
+                        ((TextView) findViewById(R.id.shipCounter)).setText("" + shipsLeftToPlace);
 
-                    }
-                    else{
+                    } else {
                         clearBuilds(new View(this));
                     }
                 }
 
             }
             //game
-        }
-        else if(!gameOver){ // firing
-            if(yourTurn && !boardShown && board.getBoard()[x][y].getImageId()==(R.drawable.cloud)){
-                board.shoot(x, y);
-                //System.out.println("player shot");
-                yourTurn = false;
-                if(opponentBoard.defeated){
-                    runVictoryScreen(true);
-                    return;
+
+            else if (!gameOver) { // firing
+                if (yourTurn && !boardShown && board.getBoard()[x][y].getImageId() == (R.drawable.cloud)) {
+                    board.shoot(x, y);
+                    //System.out.println("player shot");
+                    yourTurn = false;
+                    if (opponentBoard.defeated) {
+                        runVictoryScreen(true);
+                        return;
+                    }
+                    //pause();
+                    //System.out.println("about to pause");
+                    //System.out.println("done pausing");
+                   // pause(500);
+                  //  switchBoards();
+                    //pause(500);
+                    opponent.shoot();
+                    if (playerBoard.defeated) {
+                        runVictoryScreen(false);
+                        return;
+                    }
+                    //pause(500);
+                    //System.out.println("about to pause");
+                    //System.out.println("done pausing");
+                   // switchBoards();
+                    //pause(500);
+                    yourTurn = true;
                 }
-                //System.out.println("about to pause");
-                //System.out.println("done pausing");
-                pause(500);
-                switchBoards();
-                pause(500);
-                opponent.shoot();
-                pause(500);
-                //System.out.println("ai shot");
-                if(playerBoard.defeated){
-                    runVictoryScreen(false);
-                    return;
-                }
-                pause(500);
-                //System.out.println("about to pause");
-                //System.out.println("done pausing");
-                switchBoards();
-                pause(500);
-                yourTurn = true;
             }
         }
-
     }
     //*/
 
@@ -172,31 +181,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     public void switchBoards(View view){
-            if(boardShown){
-                boardShown = false;
-                board = opponentBoard;
-                ((TextView)findViewById(R.id.switchBoard)).setText("Your Board");
-            }
-            else{
-                boardShown = true;
-                board = playerBoard;
-                ((TextView)findViewById(R.id.switchBoard)).setText("Opponent's Board");
-            }
-            boardView.removeAllViews();
-            createBoard();
-
+        switchBoards();
     }
 
     public void switchBoards(){
         if(boardShown){
             boardShown = false;
             board = opponentBoard;
-            ((TextView)findViewById(R.id.switchBoard)).setText("Switch To Your Board");
+            ((TextView)findViewById(R.id.switchBoard)).setText(R.string.switch_your);
         }
         else{
             boardShown = true;
             board = playerBoard;
-            ((TextView)findViewById(R.id.switchBoard)).setText("Switch To Opponent's Board");
+            ((TextView)findViewById(R.id.switchBoard)).setText(R.string.switch_opponent);
         }
         boardView.removeAllViews();
         createBoard();
@@ -247,27 +244,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createBoard();
         opponentBoard = Board.createAiBoard(numCells,this);
         opponent = new ai(playerBoard);
-        clickable = false;
+        buildMode = false;
         yourTurn = true;
+        ongoingGame = true;
         switchBoards();
     }
 
-    public void pause(int i){
-        boardView.invalidate();
-        try {
-            Thread.sleep(i);
-        }
-        catch (InterruptedException e){
-            System.out.print("Exception thrown");
+    public void pause(){
+        clickable = false;
+        handy.postDelayed(switchy, 1000);
+
+
+        opponent.shoot();
+        if (playerBoard.defeated) {
+            runVictoryScreen(false);
+            return;
         }
 
+        handy.postDelayed(switchy,1000);
+        clickable = true;
     }
+
+    private Runnable switchy = new Runnable(){
+        public void run(){
+            switchBoards();
+        }
+    };
 
     public void makeAiFire(View view) {
         opponent.shoot();
     }
 
     public void runVictoryScreen(boolean didPlayerWin){
+        ongoingGame = false;
         gameOver=true;
         setContentView(R.layout.end_screen);
         TextView txt = (TextView) findViewById(R.id.youwon);
@@ -322,7 +331,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void mainMenu(){
-        setContentView(R.layout.main_menu);
+       // setContentView(R.layout.main_menu);
+        makeMainMenu();
     }
 
     public void play(View view){
@@ -367,9 +377,296 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         howToPlay();
     }
 
-    public void howToPlay(){
+    public void howToPlay() {
         setContentView(R.layout.how_to_play);
+        RelativeLayout screen = (RelativeLayout) findViewById(R.id.howToPlay);
+        int id = 200;
 
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 6; x++) {
+                View b = new ImageView(this);
+                TextView txt = new TextView(this);
+                Boolean addTxt = false;
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(screenX/6, screenX/6);
+                ((ImageView)b).setImageResource(menuGraphics[(int)(Math.random()*3)]);
+                if(y==1||y==2||y==3) {
+                    if (x == 1) {
+                        b = new ImageButton(this);
+                        b.setPadding(0, 0, 0, 0);
+                        ((ImageButton) b).setImageResource(R.drawable.ship_end_right);
+                        setHowToOnClick(y, (ImageButton)b);
+                    }
+                    if (x == 2 || x == 3) {
+                        b = new ImageButton(this);
+                        b.setPadding(0,0,0,0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_middle_horizontal);
+                        setHowToOnClick(y, (ImageButton) b);
+                    }
+                    if (x == 4) {
+                        b = new ImageButton(this);
+                        b.setPadding(0, 0, 0, 0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_front_right);
+                        setHowToOnClick(y, (ImageButton) b);
+                        txt = new TextView(this);
+                        addTxt = true;
+                        RelativeLayout.LayoutParams txtParams = new RelativeLayout.LayoutParams((screenX/6)*4,screenX/6);
+                        txtParams.addRule(RelativeLayout.ALIGN_TOP, id);
+                        txtParams.addRule(RelativeLayout.ALIGN_RIGHT, id);
+                        txt.setLayoutParams(txtParams);
+                        txt.setGravity(Gravity.CENTER);
+                        txt.setTextSize(24);
+                        if(y==1)
+                            txt.setText("Placing Ships");
+                        if(y==2)
+                            txt.setText("Gameplay");
+                        if(y==3)
+                            txt.setText("Trivia");
+                    }
+                }
+                if(y==5) {
+                    if (x == 1) {
+                        b = new ImageButton(this);
+                        b.setPadding(0,0,0,0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_front_left);
+                        setHowToOnClick(y, (ImageButton) b);
+                    }
+                    if (x == 2 || x == 3) {
+                        b = new ImageButton(this);
+                        b.setPadding(0, 0, 0, 0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_middle_horizontal);
+                        setHowToOnClick(y, (ImageButton) b);
+                    }
+                    if (x == 4) {
+                        b = new ImageButton(this);
+                        b.setPadding(0,0,0,0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_end_left);
+                        setHowToOnClick(y, (ImageButton) b);
+                        txt = new TextView(this);
+                        addTxt = true;
+                        RelativeLayout.LayoutParams txtParams = new RelativeLayout.LayoutParams((screenX/6)*4,screenX/6);
+                        txtParams.addRule(RelativeLayout.ALIGN_TOP, id);
+                        txtParams.addRule(RelativeLayout.ALIGN_RIGHT, id);
+                        txt.setLayoutParams(txtParams);
+                        txt.setGravity(Gravity.CENTER);
+                        txt.setTextSize(24);
+                        txt.setText("Back");
+                    }
+                }
+                b.setId(id++);
+                if(id<206)
+                    params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                else
+                    params.addRule(RelativeLayout.BELOW, id - (6 +1));
+                if((id-201)%6==0)
+                    params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                else
+                    params.addRule(RelativeLayout.RIGHT_OF, id - 2);
+                b.setLayoutParams(params);
+                ((ImageView)b).setScaleType(ImageView.ScaleType.CENTER_CROP);
+                screen.addView(b);
+                if(addTxt) {
+                    screen.addView(txt);
+                    addTxt = false;
+                }
+            }
+
+        }
+    }
+
+    public void howToPlaceShips(){
+        System.out.println("How to place ships");
+        setContentView(R.layout.howto_ships);
+    }
+
+    public void howToGamePlay(){
+        System.out.println("How to play");
+        setContentView(R.layout.howto_game);
+    }
+
+    public void trivia(){
+        System.out.println("fun fact");
+        setContentView(R.layout.howto_trivia);
+    }
+
+    public void makeMainMenu() {
+        if(boardView!=null)
+             boardView.removeAllViews();
+        setContentView(R.layout.main_menu);
+        RelativeLayout screen = (RelativeLayout) findViewById(R.id.mainMenu);
+        int id = 300;
+
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 6; x++) {
+                View b = new ImageView(this);
+                TextView txt = new TextView(this);
+                Boolean addTxt = false;
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(screenX/6, screenX/6);
+                ((ImageView)b).setImageResource(menuGraphics[(int)(Math.random()*3)]);
+                if(y==1||(y==2&&!ongoingGame)||y==3) {
+                    if (x == 1) {
+                        b = new ImageButton(this);
+                        b.setPadding(0, 0, 0, 0);
+                        ((ImageButton) b).setImageResource(R.drawable.ship_end_right);
+                        setHowToOnClick(y+10, (ImageButton)b);
+                    }
+                    if (x == 2 || x == 3) {
+                        b = new ImageButton(this);
+                        b.setPadding(0, 0, 0, 0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_middle_horizontal);
+                        setHowToOnClick(y+10, (ImageButton) b);
+                    }
+                    if (x == 4) {
+                        b = new ImageButton(this);
+                        b.setPadding(0, 0, 0, 0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_front_right);
+                        setHowToOnClick(y+10, (ImageButton) b);
+                        txt = new TextView(this);
+                        addTxt = true;
+                        RelativeLayout.LayoutParams txtParams = new RelativeLayout.LayoutParams((screenX/6)*4,screenX/6);
+                        txtParams.addRule(RelativeLayout.ALIGN_TOP, id);
+                        txtParams.addRule(RelativeLayout.ALIGN_RIGHT, id);
+                        txt.setLayoutParams(txtParams);
+                        txt.setGravity(Gravity.CENTER);
+                        txt.setTextSize(24);
+                        if(y==1)
+                            if(ongoingGame)
+                                txt.setText("Continue");
+                            else
+                                txt.setText("Play");
+                        if(y==2)
+                            txt.setText("Settings");
+                        if(y==3)
+                            txt.setText("How To Play");
+                    }
+                }
+
+                if(y==2 && ongoingGame) {
+                    if (x == 1) {
+                        b = new ImageButton(this);
+                        b.setPadding(0,0,0,0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_front_left);
+                        setHowToOnClick(20, (ImageButton) b);
+                    }
+                    if (x == 2 || x == 3) {
+                        b = new ImageButton(this);
+                        b.setPadding(0,0,0,0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_middle_horizontal);
+                        setHowToOnClick(20, (ImageButton) b);
+                    }
+                    if (x == 4) {
+                        b = new ImageButton(this);
+                        b.setPadding(0,0,0,0);
+                        ((ImageButton)b).setImageResource(R.drawable.ship_end_left);
+                        setHowToOnClick(20, (ImageButton) b);
+                        txt = new TextView(this);
+                        addTxt = true;
+                        RelativeLayout.LayoutParams txtParams = new RelativeLayout.LayoutParams((screenX/6)*4,screenX/6);
+                        txtParams.addRule(RelativeLayout.ALIGN_TOP, id);
+                        txtParams.addRule(RelativeLayout.ALIGN_RIGHT, id);
+                        txt.setLayoutParams(txtParams);
+                        txt.setGravity(Gravity.CENTER);
+                        txt.setTextSize(24);
+                        txt.setText("Start Over");
+                    }
+                }
+
+                b.setId(id++);
+                if(id<306)
+                    params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                else
+                    params.addRule(RelativeLayout.BELOW, id - (6 +1));
+                if((id-301)%6==0)
+                    params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                else
+                    params.addRule(RelativeLayout.RIGHT_OF, id - 2);
+                b.setLayoutParams(params);
+                ((ImageView)b).setScaleType(ImageView.ScaleType.CENTER_CROP);
+                screen.addView(b);
+                if(addTxt) {
+                    screen.addView(txt);
+                }
+            }
+
+        }
+    }
+
+    public void setHowToOnClick(int y, ImageButton b){
+        if(y==1){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    howToPlaceShips();
+                }
+            });
+        }
+        if(y==2){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    howToGamePlay();
+                }
+            });
+        }
+        if(y==3){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    trivia();
+                }
+            });
+        }
+        if(y==5){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainMenu();
+                }
+            });
+        }
+        if(y==11){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(ongoingGame)
+                        continueGame();
+                    else
+                        play();
+                }
+            });
+        }
+        if(y==12){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    settings();
+                }
+            });
+        }
+        if(y==13){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    howToPlay();
+                }
+            });
+        }
+        if(y==20){
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ongoingGame=false;
+                    play();
+                }
+            });
+        }
+    }
+
+    public void continueGame(){
+        setContentView(R.layout.game);
+        boardView = (RelativeLayout) findViewById(R.id.boardLayout);
+        createBoard();
+        switchBoards();
+        switchBoards();
     }
 
     public void settingsIncrement(View view){

@@ -8,7 +8,7 @@ android:paddingLeft="0dp"
 android:paddingRight="0dp"
 android:paddingTop="4dp"
 android:orientation="vertical"
-android:background="#0f0">
+android:background="@color/blue">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,12 +16,12 @@ android:background="#0f0">
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:text="Your Turn"
             android:id="@+id/turnView"
             android:padding="0dp"
             android:layout_weight="1"
-            android:backgroundTint="#FFFF00"/>
+            android:backgroundTint="@color/yellow"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,27 +31,29 @@ android:background="#0f0">
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Opponent's Board"
+            android:text="Back To Menu"
+            android:id="@+id/MenuButton"
+            android:padding="0dp"
+            android:onClick="mainMenu"
+            android:layout_weight="1"
+            android:backgroundTint="@color/yellow"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_opponent"
             android:id="@+id/switchBoard"
             android:padding="0dp"
             android:onClick="switchBoards"
             android:layout_weight="1"
             android:backgroundTint="#FFFF00"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fire!"
-            android:id="@+id/Fire"
-            android:padding="0dp"
-            android:onClick="makeAiFire"
-            android:layout_weight="1"
-            android:backgroundTint="#FFFF00"/>
     </LinearLayout>
 
     <RelativeLayout
@@ -60,7 +62,7 @@ android:background="#0f0">
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:padding="0dp"
-        android:background="#fff">
+        android:background="@color/blue">
 
 
 

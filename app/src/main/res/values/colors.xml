@@ -21,4 +21,5 @@
     <item name="darkred" type="color">#FFCC0000</item>
     <item name="white" type="color">#FFF</item>
     <item name="black" type="color">#000</item>
+    <item name="yellow" type="color">#FFFF00</item>
 </resources>
