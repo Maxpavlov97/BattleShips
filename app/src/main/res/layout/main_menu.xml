@@ -10,65 +10,7 @@
         android:gravity="center"
         android:background="@color/blue"
         android:textColor="@color/white"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:background="@drawable/menu">
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
 
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center"
-            android:paddingBottom="60sp">
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Play"
-                android:textSize="36sp"
-                android:textColor="@color/white"
-                android:onClick="play"
-                android:background="@drawable/sign"
-                android:padding="@dimen/end_screen_padding"
-                android:layout_margin="@dimen/end_screen_padding"/>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Settings"
-                android:textSize="36sp"
-                android:textColor="@color/white"
-                android:onClick="settings"
-                android:background="@drawable/sign"
-                android:padding="@dimen/end_screen_padding"
-                android:layout_margin="@dimen/end_screen_padding"/>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="How To Play"
-                android:textSize="36sp"
-                android:textColor="@color/white"
-                android:onClick="howToPlay"
-                android:background="@drawable/sign"
-                android:padding="@dimen/end_screen_padding"
-                android:layout_margin="@dimen/end_screen_padding"/>
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-        </LinearLayout>
-    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
