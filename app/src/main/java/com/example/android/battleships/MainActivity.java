@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     boolean ongoingGame = false;
     boolean yourTurn;
     boolean gameOver = false;
-    boolean clickable = true; //debounce for onclick
+    boolean clickable = true; 
     boolean buildMode = true; //true if you are in the phase of putting down your ships.
     boolean buildPhase = true; //true if you are putting down the first point for a ship, false if you are selecting the final cell
 
