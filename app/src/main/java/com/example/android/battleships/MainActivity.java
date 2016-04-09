@@ -200,6 +200,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void startOver(View v){
+        for(int i=Ships.shipsToPlace.length-1; i>=0; i--){
+            if(Ships.shipsToPlace[i]!=0){
+                ((TextView)findViewById(R.id.shipName)).setText(""+Ships.shipNames[i]);
+                ((TextView)findViewById(R.id.shipCounter)).setText(""+Ships.shipsToPlace[i]);
+                break;
+            }
+        }
+        resetBoard(v);
+    }
+
     public void resetBoard(View v){
         boardView.removeAllViews();
         board.clear();
