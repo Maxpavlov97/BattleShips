@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     boolean ongoingGame = false;
     boolean yourTurn;
     boolean gameOver = false;
-    boolean clickable = true; 
+    boolean clickable = true;
     boolean buildMode = true; //true if you are in the phase of putting down your ships.
     boolean buildPhase = true; //true if you are putting down the first point for a ship, false if you are selecting the final cell
 
@@ -367,9 +367,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void settings(){
         setContentView(R.layout.settings);
         ((TextView)findViewById(R.id.boardsize)).setText(numCells + "x" + numCells);
-        ((TextView)findViewById(R.id.aircraft)).setText(""+Ships.shipsToPlace[3]);
-        ((TextView)findViewById(R.id.battleship)).setText(""+Ships.shipsToPlace[2]);
-        ((TextView)findViewById(R.id.cruiser)).setText(""+Ships.shipsToPlace[1]);
+        ((TextView)findViewById(R.id.aircraft)).setText(""+Ships.shipsToPlace[4]);
+        ((TextView)findViewById(R.id.battleship)).setText(""+Ships.shipsToPlace[3]);
+        ((TextView)findViewById(R.id.cruiser)).setText(""+Ships.shipsToPlace[2]);
+        ((TextView)findViewById(R.id.destroyer)).setText(""+Ships.shipsToPlace[1]);
         ((TextView)findViewById(R.id.subs)).setText("" + Ships.shipsToPlace[0]);
     }
 
@@ -678,30 +679,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             numCells++;
             ((TextView)findViewById(R.id.boardsize)).setText(numCells + "x" + numCells);
         }
-        if(view.getId()==R.id.aircraft_minus && Ships.shipsToPlace[3]>0 && checkForShips()){
+
+        if(view.getId()==R.id.aircraft_minus && Ships.shipsToPlace[4]>0 && checkForShips()){
+            Ships.shipsToPlace[4]--;
+            ((TextView)findViewById(R.id.aircraft)).setText(""+Ships.shipsToPlace[4]);
+        }
+        if(view.getId()==R.id.aircraft_plus && enoughSpaceForAllTheseShips(5)){
+            Ships.shipsToPlace[4]++;
+            ((TextView)findViewById(R.id.aircraft)).setText(""+Ships.shipsToPlace[4]);
+        }
+
+        if(view.getId()==R.id.battleship_minus && Ships.shipsToPlace[3]>0 && checkForShips()){
             Ships.shipsToPlace[3]--;
-            ((TextView)findViewById(R.id.aircraft)).setText(""+Ships.shipsToPlace[3]);
+            ((TextView)findViewById(R.id.battleship)).setText(""+Ships.shipsToPlace[3]);
         }
-        if(view.getId()==R.id.aircraft_plus && enoughSpaceForAllTheseShips(4)){
+        if(view.getId()==R.id.battleship_plus && enoughSpaceForAllTheseShips(4)){
             Ships.shipsToPlace[3]++;
-            ((TextView)findViewById(R.id.aircraft)).setText(""+Ships.shipsToPlace[3]);
+            ((TextView)findViewById(R.id.battleship)).setText(""+Ships.shipsToPlace[3]);
         }
-        if(view.getId()==R.id.battleship_minus && Ships.shipsToPlace[2]>0 && checkForShips()){
+
+        if(view.getId()==R.id.cruiser_minus && Ships.shipsToPlace[2]>0 && checkForShips()){
             Ships.shipsToPlace[2]--;
-            ((TextView)findViewById(R.id.battleship)).setText(""+Ships.shipsToPlace[2]);
+            ((TextView)findViewById(R.id.cruiser)).setText(""+Ships.shipsToPlace[2]);
         }
-        if(view.getId()==R.id.battleship_plus && enoughSpaceForAllTheseShips(3)){
+        if(view.getId()==R.id.cruiser_plus && enoughSpaceForAllTheseShips(3)){
             Ships.shipsToPlace[2]++;
-            ((TextView)findViewById(R.id.battleship)).setText(""+Ships.shipsToPlace[2]);
+            ((TextView)findViewById(R.id.cruiser)).setText(""+Ships.shipsToPlace[2]);
         }
-        if(view.getId()==R.id.cruiser_minus && Ships.shipsToPlace[1]>0 && checkForShips()){
+
+        if(view.getId()==R.id.destroyer_minus && Ships.shipsToPlace[1]>0 && checkForShips()){
             Ships.shipsToPlace[1]--;
-            ((TextView)findViewById(R.id.cruiser)).setText(""+Ships.shipsToPlace[1]);
+            ((TextView)findViewById(R.id.destroyer)).setText(""+Ships.shipsToPlace[1]);
         }
-        if(view.getId()==R.id.cruiser_plus && enoughSpaceForAllTheseShips(2)){
+        if(view.getId()==R.id.destroyer_plus && enoughSpaceForAllTheseShips(2)){
             Ships.shipsToPlace[1]++;
-            ((TextView)findViewById(R.id.cruiser)).setText(""+Ships.shipsToPlace[1]);
+            ((TextView)findViewById(R.id.destroyer)).setText(""+Ships.shipsToPlace[1]);
         }
+
         if(view.getId()==R.id.subs_minus && Ships.shipsToPlace[0]>0 && checkForShips()){
             Ships.shipsToPlace[0]--;
             ((TextView)findViewById(R.id.subs)).setText(""+Ships.shipsToPlace[0]);

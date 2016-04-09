@@ -129,7 +129,7 @@
             <TextView
                 android:layout_width="128sp"
                 android:layout_height="wrap_content"
-                android:text="2"
+                android:text="1"
                 android:id="@+id/battleship"
                 android:gravity="center"
                 android:paddingBottom="16sp"
@@ -148,6 +148,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
         </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -174,7 +175,7 @@
             <TextView
                 android:layout_width="128sp"
                 android:layout_height="wrap_content"
-                android:text="2"
+                android:text="1"
                 android:id="@+id/cruiser"
                 android:gravity="center"
                 android:paddingBottom="16sp"
@@ -187,6 +188,51 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:id="@+id/cruiser_plus"
+                android:onClick="settingsIncrement"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Destroyers"
+            android:gravity="center"
+            android:textSize="24sp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+            <Button
+                android:layout_width="64sp"
+                android:layout_height="64sp"
+                android:text="-"
+                android:background="@color/yellow"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:id="@+id/destroyer_minus"
+                android:onClick="settingsIncrement"/>
+            <TextView
+                android:layout_width="128sp"
+                android:layout_height="wrap_content"
+                android:text="2"
+                android:id="@+id/destroyer"
+                android:gravity="center"
+                android:paddingBottom="16sp"
+                android:textSize="24sp"/>
+            <Button
+                android:layout_width="64sp"
+                android:layout_height="64sp"
+                android:text="+"
+                android:background="@color/yellow"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:id="@+id/destroyer_plus"
                 android:onClick="settingsIncrement"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -219,7 +265,7 @@
             <TextView
                 android:layout_width="128sp"
                 android:layout_height="wrap_content"
-                android:text="3"
+                android:text="2"
                 android:id="@+id/subs"
                 android:gravity="center"
                 android:paddingBottom="16sp"
