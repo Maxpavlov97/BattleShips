@@ -362,7 +362,7 @@ public class Board {
         if(x-1!=-1 && !board[x-1][y].isEmpty())
             return false;
 
-        for(int i=0; i<=size; i++)
+        for(int i=0; i<=size-1; i++)
         {
             if(direction == UP && y-i>=0)
             {
@@ -403,6 +403,29 @@ public class Board {
                 if(y+1<numCells && !board[x-i][y+1].isEmpty())
                     return false;
             }
+        }
+        
+        if(direction == UP && y-size>=0)
+        {
+            if(!board[x][y-size].isEmpty())
+                return false;
+        }
+
+        else if(direction == RIGHT && x+size<numCells)
+        {
+            if(!board[x+size][y].isEmpty())
+                return false;
+        }
+
+        else if(direction == DOWN && y+size<numCells) {
+            if (!board[x][y + size].isEmpty())
+                return false;
+        }
+
+        else if(direction == LEFT && x-size>=0)
+        {
+            if(!board[x-size][y].isEmpty())
+                return false;
         }
         return true;
     }
